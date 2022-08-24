@@ -104,7 +104,7 @@ catch(error){
                 from: 'joel.joel52@gmail.com',
                 to: existing_user.Email,
                 subject: 'User verification',
-                html:`<span>Verification code :<h1>${string}</h1> </span><a href="https://relaxed-cajeta-2c9b5f.netlify.app/userverification">Reset Password</a>`
+                html:`<span>Verification code :<h1>${string}</h1> </span><a href="https://password-reset-six.vercel.app/userverification">Reset Password</a>`
               };
 
               transporter.sendMail(mailOptions, function(error, info){
@@ -267,9 +267,94 @@ message:"User not found"
 })
 
 
+app.post("/urlshortener/:id", async function(req,res){
+  try{
+      const connection = await mongoClient.connect(URL);
+      const db = connection.db("User_database");
+      const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let string = '';
+      for(let i=0;i<10;i++){
+          string+=characters[Math.floor(Math.random()*characters.length)];
+
+      }
+      req.body.string = string;
+      req.body.shorturl = `${process.env.URL}/${string}`;
+    req.body.userid = req.params.id ;
+      await db.collection("url").insertOne(req.body);
+
+
+
+      await connection.close();
+      res.json({
+          message : "Shortend URL generated successfully"
+      })
+  
+  }
+  catch(error){
+      console.log(error)
+  }
+      })
+
+      app.get("/url/:id",authenticate, async function(req,res){
+        try{
+
+            const connection = await mongoClient.connect(URL);
+            const db = connection.db("User_database");
+        
+           
+            const urls = await db.collection("url").find({userid : req.params.id}).toArray();
+
+
+            await connection.close();
+            res.json(urls.reverse());
+        
+        }
+        catch(error){
+            console.log(error)
+        }
+            })
+
+
+            app.get("/:shortURL", async function (request, response) {
+              try {
+                const connection = await mongoClient.connect(URL);
+                const db = connection.db("User_database");
+                console.log(request.params.shortURL);
+                let data = await db.collection("url").findOne({ shorturl: `${process.env.URL}/${request.params.shortURL}` });
+                 console.log(data)
+                if (data) {
+                 // console.log(data);
+                  let res = await db
+                    .collection("url")
+                    .updateOne(
+                      { shorturl: `${process.env.URL}/${request.params.shortURL}` },
+                      { $inc: { count: 1 } }
+                    );
+                    
+                  if (res) {
+                    response.redirect(data.url);
+                  
+                  } else {
+                    response.json({
+                      message: "something went wrong",
+                    });
+                  }
+                } else {
+                  response.json({
+                    message: "something went wrong",
+                  });
+                }
+                await connection.close();
+              } catch (error) {
+                console.log(error);
+              }
+            });
+            
+            
 
 
 
 
 
-app.listen( process.env.PORT);
+app.listen( process.env.PORT || 3002 );
+
