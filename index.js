@@ -356,5 +356,5 @@ app.post("/urlshortener/:id", async function(req,res){
 
 
 
-app.listen( process.env.PORT || 3002 );
+app.listen( process.env.PORT  );
 
