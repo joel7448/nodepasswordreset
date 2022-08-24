@@ -104,7 +104,7 @@ catch(error){
                 from: 'joel.joel52@gmail.com',
                 to: existing_user.Email,
                 subject: 'User verification',
-                html:`<span>Verification code :<h1>${string}</h1> </span><a href="https://relaxed-cajeta-2c9b5f.netlify.app/userverification">Reset Password</a>`
+                html:`<span>Verification code :<h1>${string}</h1> </span><a href="https://password-reset-six.vercel.app/userverification">Reset Password</a>`
               };
 
               transporter.sendMail(mailOptions, function(error, info){
